@@ -1,0 +1,71 @@
+[project]
+name = "zorrito"
+version = "0.1.0"
+description = "A lean reimplementation of Zorro: valid, sparse, stable explanations for PyTorch Geometric GNNs, with graph-level and regression support."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Jonas", email = "jonseb1998@gmail.com" }]
+license = { text = "MIT" }
+keywords = [
+    "graph-neural-networks",
+    "explainability",
+    "interpretability",
+    "xai",
+    "pytorch-geometric",
+    "rate-distortion",
+    "zorro",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Chemistry",
+]
+dependencies = [
+    "torch>=2.0",
+    "torch-geometric>=2.4",
+    "numpy>=1.24",
+    "tqdm>=4.65",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "nox>=2024.4.15",
+]
+
+[project.urls]
+# TODO: replace with the real GitHub URL once you push the repo.
+Homepage = "https://github.com/your-user/zorrito"
+Repository = "https://github.com/your-user/zorrito"
+Issues = "https://github.com/your-user/zorrito/issues"
+Changelog = "https://github.com/your-user/zorrito/blob/main/CHANGELOG.md"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/zorrito"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/zorrito",
+    "tests",
+    "examples",
+    "README.md",
+    "CHANGELOG.md",
+    "DEVELOP.md",
+    "LICENSE",
+    "pyproject.toml",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
