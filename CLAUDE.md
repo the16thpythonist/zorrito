@@ -65,7 +65,7 @@ uv pip install -e ".[dev]"
 ## Common commands
 
 ```bash
-.venv/bin/pytest tests/              # run all tests (~3 s, 25 tests)
+.venv/bin/pytest tests/              # run all tests (~7 s, 32 tests)
 uv build                             # build sdist + wheel into dist/
 .venv/bin/python examples/graph_mutag.py    # graph-classification demo
 ```
@@ -150,6 +150,39 @@ Helpers: `.selected_node_indices()` and `.selected_feature_indices()` return
 - **Boolean masks are `torch.bool` tensors**, not numpy arrays.
 - **Determinism**: callers can pass `seed` to `Zorro.__init__`; the sampler
   uses that generator. Don't introduce hidden randomness elsewhere.
+
+## House style
+
+This codebase intentionally tracks the conventions of the sibling projects
+`graph_attention_student` and `chem_mat_data`. See `CODING_STYLE.md` at the
+repo root for the full reference; the high points enforced here are:
+
+- **Section dividers** inside modules and classes use the
+  `# == SECTION NAME ==` form, with a short prose paragraph in comments
+  immediately below each header. Subsections may use `# -- subsection --`.
+- **Module docstrings** open every source file. They describe the
+  module's *purpose* — why it exists, what role it plays — not what each
+  function does.
+- **ReST docstrings** with `:param:` / `:returns:` blocks. Class
+  docstrings for non-trivial classes use `**ALL CAPS BOLD**` headers to
+  split multi-section documentation (e.g. `**TASKS**`, `**OBJECTIVES**`
+  in `Zorro`). Short helpers can use a one-line docstring.
+- **Tensor shape conventions** in docstrings: `V` for nodes, `K` for
+  features, `E` for edges, `B` for batch, `C` for output classes. Inline
+  `# shape: (V, K)` comments are encouraged above non-obvious tensor ops.
+- **Abstract base classes** use the `Abstract*` prefix and raise
+  `NotImplementedError()` in their methods (no `abc.ABC` / `@abstractmethod`).
+  Today the only abstract base is `AbstractNoiseSampler` in `noise.py`.
+- **No mixins on `Zorro`** — it is a single concrete class. Mixins are
+  introduced only when they model a real cross-cutting contract; do not
+  add them speculatively.
+- **Dated change markers**: when adding non-obvious code paths for a
+  specific reason, a `# DD.MM.YY` comment above the change is preferred
+  over a longer prose justification.
+- **Typing**: PEP 604 unions (`int | None`) and
+  `from __future__ import annotations` are mandatory — see the
+  Conventions section above. This is the one place zorrito deliberately
+  diverges from the sibling projects' style.
 
 ## What's deliberately out of scope (per design, don't add without asking)
 

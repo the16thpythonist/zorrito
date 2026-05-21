@@ -1,8 +1,9 @@
-"""Explain one molecule's class on the MUTAG graph-classification dataset.
+"""
+Explain one molecule's class on the MUTAG graph-classification dataset.
 
 MUTAG is a tiny dataset (188 molecules) where each graph carries a binary
-class label. This example trains a small GIN with global mean pooling and
-asks Zorrito to explain a single molecule's predicted label.
+class label. This example trains a small GIN with global mean pooling
+and asks Zorrito to explain a single molecule's predicted label.
 """
 from __future__ import annotations
 
@@ -16,7 +17,21 @@ from torch_geometric.nn import GINConv, global_mean_pool
 from zorrito import Zorro
 
 
+# == MODEL ==
+
+
 class GIN(nn.Module):
+    """
+    A small two-layer GIN with global mean pooling.
+
+    Each GINConv layer is built on a ``Linear -> ReLU -> Linear`` MLP. The
+    pooled embedding is projected to class logits by a final linear layer.
+
+    :param in_channels: Input feature dimensionality.
+    :param hidden: Hidden dimensionality used inside both GINConvs.
+    :param out_channels: Number of output classes.
+    """
+
     def __init__(self, in_channels: int, hidden: int, out_channels: int) -> None:
         super().__init__()
         nn1 = nn.Sequential(nn.Linear(in_channels, hidden), nn.ReLU(), nn.Linear(hidden, hidden))
@@ -32,7 +47,18 @@ class GIN(nn.Module):
         return self.lin(h)
 
 
+# == TRAINING ==
+
+
 def train(model, loader, device, epochs: int = 60) -> None:
+    """
+    Train the model with Adam + cross-entropy for ``epochs`` epochs.
+
+    :param model: The model to train.
+    :param loader: A PyG DataLoader yielding training batches.
+    :param device: torch device.
+    :param epochs: Number of training epochs.
+    """
     optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
     model.train()
     for _ in range(epochs):
@@ -45,7 +71,11 @@ def train(model, loader, device, epochs: int = 60) -> None:
             optimizer.step()
 
 
+# == EXPLAIN ==
+
+
 def main() -> None:
+    """Train a GIN on MUTAG and run Zorrito on one held-out molecule."""
     torch.manual_seed(0)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -69,10 +99,14 @@ def main() -> None:
             total += batch.num_graphs
     print(f"Test accuracy: {correct / total:.3f}")
 
-    # pick the first test molecule and explain it
+    # Pick the first test molecule and explain it.
     target = test_set[0].to(device)
     with torch.no_grad():
-        pred = model(target.x, target.edge_index, torch.zeros(target.num_nodes, dtype=torch.long, device=device)).argmax(dim=-1).item()
+        pred = model(
+            target.x,
+            target.edge_index,
+            torch.zeros(target.num_nodes, dtype=torch.long, device=device),
+        ).argmax(dim=-1).item()
     print(f"Explaining molecule with true class {int(target.y.item())} (predicted {pred})")
 
     explainer = Zorro(

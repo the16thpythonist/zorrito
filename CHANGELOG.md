@@ -7,6 +7,71 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-05-21
+
+A no-behavior-change refactor that brings the codebase in line with the
+in-house coding style of the sibling projects `graph_attention_student`
+and `chem_mat_data`. The public API is unchanged: `from zorrito import
+Zorro, Explanation` and the `Zorro.__init__` / `Zorro.explain` signatures
+keep their existing names, defaults, and return types.
+
+### Added
+
+- `src/zorrito/_typing.py` — one home for the five `Literal` aliases
+  (`Task`, `SelectMode`, `Objective`, `Direction`, `NoiseMode`), each
+  with a prose docstring describing meaning and allowed values.
+- `src/zorrito/VERSION` — plain-text version string mirroring
+  `pyproject.toml`, read at runtime by `get_version()`.
+- `src/zorrito/utils.py` — package-level `PATH`, `VERSION_PATH`,
+  `get_version()`, and a default silent `NULL_LOGGER`.
+- `AbstractNoiseSampler` abstract base in `src/zorrito/noise.py`, with
+  `EmpiricalColumnSampler` and `EmpiricalRowSampler` as concrete
+  subclasses. The existing free-function constructors
+  (`empirical_column_sampler`, `empirical_row_sampler`, `build_sampler`)
+  are retained as thin one-line factories that return instances of the
+  new classes, so the closure-style call sites continue to work.
+- `tests/test_regression_locked.py` — three characterization tests that
+  pin the exact selected-mask indices, fidelity values, and greedy trace
+  for planted-signal scenarios. Acts as a canary against silent
+  behavioral drift in future refactors.
+- `tests/util.py` — shared toy models (`TinyGCN`, `TinyGraphGCN`,
+  `SingleFeatureModel`) and the `make_random_node_graph` fixture
+  factory, lifted out of the test files for reuse.
+
+### Changed
+
+- Module docstrings, ReST `:param:` / `:returns:` blocks on every public
+  function and class, and `# == SECTION ==` dividers throughout the
+  source tree. `Zorro`'s class docstring is now split into
+  `**TASKS**` / `**OBJECTIVES**` / `**SELECT MODES**` / `**NOISE
+  SAMPLING**` / `**OUTPUT**` sections.
+- Test files are grouped into `Test*` classes by subject:
+  `TestZorroNode`, `TestZorroGraph`, `TestZorroConfig`,
+  `TestZorroDeterminism`, `TestZorroPlantedSignal`, `TestMakeMatchFn`,
+  `TestEstimateFidelity`, `TestEmpiricalColumnSampler`,
+  `TestEmpiricalRowSampler`. Every test has a one-line ReST docstring.
+- Example scripts gain `# == MODEL ==` / `# == TRAINING ==` / `# ==
+  EXPLAIN ==` section dividers and ReST docstrings on the inline helper
+  classes. No behavioral change.
+- `__version__` is now read from the `VERSION` file via
+  `get_version()` rather than hard-coded.
+- `CLAUDE.md` documents the new house-style conventions (section
+  dividers, ReST docstrings, `**ALL CAPS**` headers, `Abstract*`
+  prefix, dated change markers); the existing PEP 604 typing rule is
+  preserved unchanged.
+- The bundled test count grows from 29 to 32 (3 new characterization
+  tests); total suite runtime stays at ~7 seconds.
+
+### Not changed (regression-safety guarantees)
+
+- The greedy loop, the disjoint outer loop, the initial-ranking pass,
+  the top-K logic, and the noise-sampler math are byte-identical in
+  the operations they perform.
+- `Zorro.__init__` keyword names, defaults, and validation rules.
+- `Zorro.explain` signature and return type.
+- `Explanation` dataclass field names and helper methods.
+- All 29 pre-existing tests pass without modification of their assertions.
+
 ## [0.2.0] - 2026-05-21
 
 ### Added

@@ -1,8 +1,9 @@
-"""Explain one node's prediction on Cora using a 2-layer GCN.
+"""
+Explain one node's prediction on Cora using a 2-layer GCN.
 
-This mirrors the original Zorro `example.ipynb`. Expect a few minutes of
-runtime even on a small dataset — the initial ranking pass evaluates every
-candidate feature and node, each via Monte Carlo.
+This mirrors the original Zorro ``example.ipynb``. Expect a few minutes
+of runtime even on a small dataset — the initial ranking pass evaluates
+every candidate feature and node, each via Monte Carlo.
 """
 from __future__ import annotations
 
@@ -15,7 +16,19 @@ from torch_geometric.nn import GCNConv
 from zorrito import Zorro
 
 
+# == MODEL ==
+
+
 class GCN(nn.Module):
+    """
+    A standard two-layer GCN with dropout, suitable for Cora-style
+    node-classification benchmarks.
+
+    :param in_channels: Input feature dimensionality.
+    :param hidden: Hidden dimensionality of the intermediate layer.
+    :param out_channels: Number of output classes.
+    """
+
     def __init__(self, in_channels: int, hidden: int, out_channels: int) -> None:
         super().__init__()
         self.conv1 = GCNConv(in_channels, hidden)
@@ -27,7 +40,18 @@ class GCN(nn.Module):
         return self.conv2(h, edge_index)
 
 
+# == TRAINING ==
+
+
 def train(model, data, epochs: int = 200) -> None:
+    """
+    Train the model with Adam + cross-entropy on the labelled train mask.
+
+    :param model: The model to train.
+    :param data: A PyG Data instance carrying ``x``, ``edge_index``, ``y``
+        and a ``train_mask``.
+    :param epochs: Number of training epochs.
+    """
     optimizer = torch.optim.Adam(model.parameters(), lr=0.01, weight_decay=5e-4)
     model.train()
     for _ in range(epochs):
@@ -38,7 +62,11 @@ def train(model, data, epochs: int = 200) -> None:
         optimizer.step()
 
 
+# == EXPLAIN ==
+
+
 def main() -> None:
+    """Train a GCN on Cora and run Zorrito on one held-out node."""
     torch.manual_seed(0)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -50,7 +78,10 @@ def main() -> None:
     model.eval()
 
     with torch.no_grad():
-        accuracy = (model(data.x, data.edge_index).argmax(dim=-1)[data.test_mask] == data.y[data.test_mask]).float().mean().item()
+        accuracy = (
+            model(data.x, data.edge_index).argmax(dim=-1)[data.test_mask]
+            == data.y[data.test_mask]
+        ).float().mean().item()
     print(f"Test accuracy: {accuracy:.3f}")
 
     node_idx = 10
@@ -78,7 +109,11 @@ def main() -> None:
     print(f"  # selected neighbors: {int(expl.node_mask.sum())} / {expl.node_mask.numel()}")
     print(f"  # selected features:  {int(expl.feature_mask.sum())} / {expl.feature_mask.numel()}")
     print(f"  original neighbors:   {expl.subgraph_nodes[expl.node_mask].tolist()}")
-    print(f"  feature indices:      {expl.selected_feature_indices().tolist()[:20]}{'…' if int(expl.feature_mask.sum()) > 20 else ''}")
+    print(
+        f"  feature indices:      "
+        f"{expl.selected_feature_indices().tolist()[:20]}"
+        f"{'...' if int(expl.feature_mask.sum()) > 20 else ''}"
+    )
 
 
 if __name__ == "__main__":
