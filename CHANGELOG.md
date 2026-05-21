@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-05-21
+
+### Added
+
+- `noxfile.py` with a `tests` session parameterized over Python 3.10, 3.11,
+  and 3.12, using uv as the venv backend
+  (`nox.options.default_venv_backend = "uv"`) so environments are provisioned
+  with the same resolver as the rest of the project.
+- `nox>=2024.4.15` added to the `dev` optional-dependency group.
+
 ## [0.1.0] - 2026-05-20
 
 Initial release. A lean, modernized reimplementation of [Zorro](https://arxiv.org/abs/2105.08621)

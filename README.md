@@ -1,21 +1,23 @@
-# zorrito
+# ⭐ Zorrito — Stable, Sparse, and Valid Explanations for Modern PyTorch Geometric
+
+![zorrito banner](zorrito_banner.png)
 
 A lean, modernized reimplementation of [Zorro](https://arxiv.org/abs/2105.08621) —
 valid, sparse, stable explanations for PyTorch Geometric GNNs.
 
-zorrito keeps the greedy core of the paper extends the following
+`zorrito` keeps the greedy core idea of the paper and extends it with the following aspects:
 
-- **Modern** Python and Pytorch Geometric support
+- **Modern** Python and Pytorch Geometric support!
 - **Graph-level explanations**, not just node-level
 - **Regression support** via a tolerance band, with optional **one-sided**
   (direction-aware) match functions
+- **Structure-only explanations** which can be configured as an alternative to feature based explanations.
 - **Configurable noise** — whole-row sampling and dataset-wide pools, so
-  perturbed inputs stay on the data manifold (matters a lot for categorical /
-  one-hot features like atom types)
+  perturbed inputs stay on the data manifold
 
 ---
 
-## Install
+## 📦 Install
 
 ```bash
 pip install zorrito
@@ -35,9 +37,7 @@ uv pip install -e ".[dev]"
 pytest tests/
 ```
 
-See [DEVELOP.md](DEVELOP.md) for the release / publishing checklist.
-
-## Quick start
+## 🚀 Quick start
 
 ### Node classification (Cora-style)
 
@@ -108,7 +108,7 @@ explanations = explainer.explain(
 )
 ```
 
-## Key concepts
+## 🧠 Key concepts
 
 **RDT-Fidelity.** For a candidate explanation $\mathcal{S} = (V_s, F_s)$:
 
@@ -144,7 +144,7 @@ for node tasks (continuous features), and switches to **whole-row sampling**
 by default for graph tasks (categorical / one-hot features stay valid). The
 pool the rows are drawn from can be set independently via `noise_pool`.
 
-## Configuration cheat sheet
+## ⚙️ Configuration cheat sheet
 
 ```python
 Zorro(
@@ -181,7 +181,7 @@ The return is a `list[Explanation]`, where each `Explanation` exposes
 `subgraph_nodes`. The masks are boolean tensors; use
 `selected_node_indices()` / `selected_feature_indices()` to convert.
 
-## Notable departures from the original paper / reference implementation
+## 🔀 Notable departures from the original paper / reference implementation
 
 - `fidelity_threshold=0.85` is the value $\tau$ from the paper. The original
   code uses `tau=0.15` (which is `1 − τ_paper`)
@@ -190,7 +190,7 @@ The return is a `list[Explanation]`, where each `Explanation` exposes
   masks, instead of nested numpy arrays.
 - The package targets modern Python (>=3.10) and PyG (>=2.4).
 
-## Citing the algorithm
+## 📚 Citing the algorithm
 
 The algorithm is from the original Zorro paper:
 
@@ -203,6 +203,6 @@ The algorithm is from the original Zorro paper:
 }
 ```
 
-## License
+## 📄 License
 
 MIT — see [LICENSE](LICENSE).
